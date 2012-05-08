@@ -30,6 +30,11 @@
 
       <dt>flexc -n dummy.as -o foo.swf</dt>
       <dd>mxmlc dummy.as -output=<b>$PWD</b>/foo.swf</dd>
+
+      <dt>flexc -n dummy.as -I src</dt>
+      <dd>mxmlc dummy.as
+        -include-sources+=<b>$PWD</b>/src
+        -output=<b>$PWD</b>/dummy.swf</dd>
     </dl>
   </body>
 </html>

@@ -46,13 +46,17 @@ function parse_dd(dd) {
     result = ""
   } else if (dd.get("div")) {
     result = dd.find("div").map(function (div) {
-      return div.text() + "\n"
+      return normalize(div.text()) + "\n"
     }).join("")
   } else {
-    result = dd.text() + "\n"
+    result = normalize(dd.text()) + "\n"
   }
 
   return result.replace(/\$PWD\b/g, path.resolve(__dirname))
+}
+
+function normalize(text) {
+  return text.replace(/^\s+|\s+$/g, "").replace(/\s+/g, " ")
 }
 
 function dump(label, text) {
