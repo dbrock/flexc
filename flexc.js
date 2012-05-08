@@ -11,6 +11,7 @@ var options = require("optimist")
   .boolean("flex").default("flex", true)
   .boolean("static-rsls")
   .boolean("halo")
+  .boolean("write-config")
   .argv
 
 var config = {
@@ -94,27 +95,69 @@ if (config.source_files.length === 1) {
 }
 
 //——————————————————————————————————————————————————————————————————————
+// Generate Flex compiler configuration
+//——————————————————————————————————————————————————————————————————————
+
+var flex_config = {
+  output: path.resolve(options["o"] || (
+    path.basename(config.source_file).replace(/\.(as|mxml)$/, ".swf")
+  )),
+
+  source_path: config.directories.map(path.resolve),
+
+  library_path: [].concat(
+    config.directories, config.library_files
+  ).map(path.resolve)
+}
+
+//——————————————————————————————————————————————————————————————————————
 // Generate Flex compiler command
 //——————————————————————————————————————————————————————————————————————
 
 var command = "mxmlc"
 var file_args = []
 var option_args = []
+var flex_config_xml
 
 file_args.push(path.resolve(config.source_file))
 
-option_args.push("-output=" + path.resolve(options["o"] || (
-  path.basename(config.source_file).replace(/\.(as|mxml)$/, ".swf")
-)))
+if (options["write-config"]) {
+  flex_config_xml = build_xml(
+    new (require("libxmljs").Document), function (xml) {
+      build_xml(xml.node("flex-config"), function (xml) {
+        xml.node("load-config", "${flexlib}/${configname}-config.xml")
+        xml.node("output", flex_config.output)
+        build_xml(xml.node("compiler"), function (xml) {
+          build_xml(xml.node("source-path"), function (xml) {
+            xml.attr("append", "true")
+            flex_config.source_path.forEach(function (element) {
+              xml.node("path-element", element)
+            })
+          })
+          build_xml(xml.node("library-path"), function (xml) {
+            xml.attr("append", "true")
+            flex_config.library_path.forEach(function (element) {
+              xml.node("path-element", element)
+            })
+          })
+        })
+      })
+    }
+  ).toString()
+} else {
+  option_args.push("-output=" + path.resolve(options["o"] || (
+    path.basename(config.source_file).replace(/\.(as|mxml)$/, ".swf")
+  )))
 
-config.directories.forEach(function (directory) {
-  option_args.push("-compiler.library-path+=" + path.resolve(directory))
-  option_args.push("-compiler.source-path+=" + path.resolve(directory))
-})
+  config.directories.forEach(function (directory) {
+    option_args.push("-compiler.library-path+=" + path.resolve(directory))
+    option_args.push("-compiler.source-path+=" + path.resolve(directory))
+  })
 
-config.library_files.forEach(function (filename) {
-  option_args.push("-compiler.library-path+=" + path.resolve(filename))
-})
+  config.library_files.forEach(function (filename) {
+    option_args.push("-compiler.library-path+=" + path.resolve(filename))
+  })
+}
 
 option_args = option_args.concat(config.extra_arguments)
 
@@ -127,10 +170,18 @@ option_args.sort()
 
 var args = [command].concat(file_args, option_args)
 
-if (options["n"] || options["dry-run"]) {
-  console.log(args.join(" "))
-} else {
+if (!options["dry-run"]) {
+  if (options["write-config"]) {
+    fs.writeFileSync(config.source_file.replace(
+      (/(\.(as|mxml))?$/), "-config.xml"
+    ), flex_config_xml)
+  }
+
   require("flex-compiler").__main__(args)
+} else if (flex_config_xml) {
+  console.log(flex_config_xml)
+} else {
+  console.log(args.join(" "))
 }
 
 //——————————————————————————————————————————————————————————————————————
@@ -152,4 +203,8 @@ function is_file(filename) {
 
 function is_directory(filename) {
   return path.existsSync(filename) && fs.statSync(filename).isDirectory()
+}
+
+function build_xml(xml, callback) {
+  callback(xml); return xml
 }
