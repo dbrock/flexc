@@ -122,7 +122,7 @@ var flex_config_xml
 file_args.push(path.resolve(config.source_file))
 
 if (options["write-config"]) {
-  flex_config_xml = build_xml(
+  flex_config_xml = require("pretty-data").pd.xml(build_xml(
     new (require("libxmljs").Document), function (xml) {
       build_xml(xml.node("flex-config"), function (xml) {
         xml.node("load-config", "${flexlib}/${configname}-config.xml")
@@ -143,7 +143,7 @@ if (options["write-config"]) {
         })
       })
     }
-  ).toString()
+  ).toString())
 } else {
   option_args.push("-output=" + path.resolve(options["o"] || (
     path.basename(config.source_file).replace(/\.(as|mxml)$/, ".swf")

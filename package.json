@@ -6,10 +6,11 @@
   "main": "flexc.js",
   "bin": "flexc.js",
   "dependencies": {
-    "libxmljs": "~0.5.4",
-    "optimist": "~0.3.4",
     "flex-compiler": "~0.0.0",
-    "colors": "~0.6.0-1"
+    "optimist": "~0.3.4",
+    "colors": "~0.6.0-1",
+    "libxmljs": "~0.5.4",
+    "pretty-data": "~0.30.3"
   },
   "devDependencies": {},
   "optionalDependencies": {},
