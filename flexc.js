@@ -6,8 +6,11 @@ var inspect = require("util").inspect
 var path = require("path")
 
 var options = require("optimist")
-  .boolean("n").alias("n", "dry-run")
   .string("o", "l", "L", "X")
+  .boolean("n").alias("n", "dry-run")
+  .boolean("flex").default("flex", true)
+  .boolean("static-rsls")
+  .boolean("halo")
   .argv
 
 var config = {
@@ -34,7 +37,7 @@ options._.forEach(function (filename) {
   }
 })
 
-toArray(options.L).forEach(function (directory) {
+toArray(options["L"]).forEach(function (directory) {
   if (!path.existsSync(directory)) {
     die("%s: no such file or directory", directory)
   } else if (!fs.statSync(directory).isDirectory()) {
@@ -44,7 +47,7 @@ toArray(options.L).forEach(function (directory) {
   }
 })
 
-toArray(options.l).forEach(function (name) {
+toArray(options["l"]).forEach(function (name) {
   config.library_path.some(function (directory) {
     var filename = path.join(directory, name)
 
@@ -60,9 +63,23 @@ toArray(options.l).forEach(function (name) {
   }) || die("%s: library not found", name)
 })
 
-toArray(options.X).forEach(function (argument) {
+toArray(options["X"]).forEach(function (argument) {
   config.extra_arguments.push(argument)
 })
+
+if (!options["flex"]) {
+  config.extra_arguments.push("-runtime-shared-library-path=")
+}
+
+if (options["static-rsls"]) {
+  config.extra_arguments.push("-static-link-runtime-shared-libraries=true")
+}
+
+if (options["halo"]) {
+  config.extra_arguments.push("-theme=" + path.join(
+    require("flex-compiler").home, "frameworks/themes/Halo/halo.swc"
+  ))
+}
 
 //——————————————————————————————————————————————————————————————————————
 // Validate configuration
