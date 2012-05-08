@@ -19,22 +19,23 @@
       <dt>flexc</dt>
       <dd class="stderr">flexc: nothing to compile</dd>
 
-      <dt>flexc foo.as bar.as</dt>
+      <dt>flexc src/foo.as src/bar.as</dt>
       <dd class="stderr">flexc: error: multiple source files given</dd>
 
-      <dt>flexc foo.as</dt>
-      <dd class="stderr">flexc: foo.as: no such file or directory</dd>
+      <dt>flexc nonexistent.as</dt>
+      <dd class="stderr">flexc: nonexistent.as: no such file or directory</dd>
 
-      <dt>flexc -n dummy.as</dt>
-      <dd>mxmlc dummy.as -output=<b>$PWD</b>/dummy.swf</dd>
+      <dt>flexc -n src/foo.as</dt>
+      <dd>mxmlc <b>$PWD</b>/src/foo.as -output=<b>$PWD</b>/foo.swf</dd>
 
-      <dt>flexc -n dummy.as -o foo.swf</dt>
-      <dd>mxmlc dummy.as -output=<b>$PWD</b>/foo.swf</dd>
+      <dt>flexc -n src/foo.as -o bar.swf</dt>
+      <dd>mxmlc <b>$PWD</b>/src/foo.as -output=<b>$PWD</b>/bar.swf</dd>
 
-      <dt>flexc -n dummy.as -I src</dt>
-      <dd>mxmlc dummy.as
-        -include-sources+=<b>$PWD</b>/src
-        -output=<b>$PWD</b>/dummy.swf</dd>
+      <dt>flexc -n src/foo.as src</dt>
+      <dd>mxmlc <b>$PWD</b>/src/foo.as
+        -compiler.library-path+=<b>$PWD</b>/src
+        -compiler.source-path+=<b>$PWD</b>/src
+        -output=<b>$PWD</b>/foo.swf</dd>
     </dl>
   </body>
 </html>

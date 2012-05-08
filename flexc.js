@@ -8,13 +8,13 @@ var path = require("path")
 var options = require("optimist")
   .boolean("n").alias("n", "dry-run")
   .string("o").alias("o", "output")
-  .string("I").alias("I", "source-directory")
   .argv
 
 var config = {
+  directories: [],
   source_files: [],
-  source_directories: [],
-  target_file: undefined
+  library_files: [],
+  target: undefined
 }
 
 //——————————————————————————————————————————————————————————————————————
@@ -23,16 +23,12 @@ var config = {
 
 options._.forEach(function (filename) {
   if (!path.existsSync(filename)) {
-    die("%s: no such file or directory", options._[0])
+    die("%s: no such file or directory", filename)
   } else if (fs.statSync(filename).isDirectory()) {
-    config.source_directories.push(filename)
+    config.directories.push(filename)
   } else {
     config.source_files.push(filename)
   }
-})
-
-toArray(options["source-directory"]).forEach(function (value) {
-  config.source_directories.push(value)
 })
 
 //——————————————————————————————————————————————————————————————————————
@@ -58,11 +54,12 @@ var option_args = []
 file_args.push(path.resolve(config.source_file))
 
 option_args.push("-output=" + path.resolve(options["output"] || (
-  config.source_file.replace(/\.(as|mxml)$/, ".swf")
+  path.basename(config.source_file).replace(/\.(as|mxml)$/, ".swf")
 )))
 
-config.source_directories.forEach(function (directory) {
-  option_args.push("-include-sources+=" + path.resolve(directory))
+config.directories.forEach(function (directory) {
+  option_args.push("-compiler.library-path+=" + path.resolve(directory))
+  option_args.push("-compiler.source-path+=" + path.resolve(directory))
 })
 
 file_args.sort()
