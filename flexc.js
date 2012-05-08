@@ -8,12 +8,14 @@ var path = require("path")
 var options = require("optimist")
   .boolean("n").alias("n", "dry-run")
   .string("o").alias("o", "output")
+  .string("X")
   .argv
 
 var config = {
   directories: [],
   source_files: [],
   library_files: [],
+  extra_arguments: [],
   target: undefined
 }
 
@@ -29,6 +31,10 @@ options._.forEach(function (filename) {
   } else {
     config.source_files.push(filename)
   }
+})
+
+toArray(options.X).forEach(function (argument) {
+  config.extra_arguments.push(argument)
 })
 
 //——————————————————————————————————————————————————————————————————————
@@ -61,6 +67,8 @@ config.directories.forEach(function (directory) {
   option_args.push("-compiler.library-path+=" + path.resolve(directory))
   option_args.push("-compiler.source-path+=" + path.resolve(directory))
 })
+
+option_args = option_args.concat(config.extra_arguments)
 
 file_args.sort()
 option_args.sort()
