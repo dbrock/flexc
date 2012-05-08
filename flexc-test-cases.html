@@ -1,0 +1,32 @@
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <style>
+      body { margin: 0 10em; padding: 25px 0 100px; }
+      h1 { font: 200 32px "Helvetica Neue"; }
+
+      dt, dd { padding: .5ex .5em; font: 14px monospace; }
+      dt { margin: 4ex 0 .5ex; font-weight: bold; }
+      dd { margin: .5ex 0; position: relative; background: #eee; }
+      dd:before { position: absolute; left: -5em; color: #ccc; }
+      dd.stdout:before { }
+      dd.stderr:before { content: "stderr:"; }
+    </style>
+  </head>
+  <body>
+    <h1><code>flexc</code> test cases</h1>
+    <dl>
+      <dt>flexc</dt>
+      <dd class="stderr">flexc: nothing to compile</dd>
+
+      <dt>flexc foo.as bar.as</dt>
+      <dd class="stderr">flexc: error: multiple source files given</dd>
+
+      <dt>flexc foo.as</dt>
+      <dd class="stderr">flexc: foo.as: no such file or directory</dd>
+
+      <dt>flexc -n dummy.as</dt>
+      <dd>mxmlc dummy.as -output=<b>$PWD</b>/dummy.swf</dd>
+    </dl>
+  </body>
+</html>
