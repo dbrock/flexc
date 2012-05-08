@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 var format = require("util").format
+var fs = require("fs")
 var inspect = require("util").inspect
 var path = require("path")
 
@@ -11,28 +12,50 @@ var options = require("optimist")
   .argv
 
 var config = {
-  source_directories: []
+  source_files: [],
+  source_directories: [],
+  target_file: undefined
 }
 
-if (options._.length === 0) {
-  die("nothing to compile")
-} else if (options._.length > 1) {
-  die("error: multiple source files given")
-} else if (path.existsSync(options._[0])) {
-  config.source_file = options._[0]
-} else {
-  die("%s: no such file or directory", options._[0])
-}
+//——————————————————————————————————————————————————————————————————————
+// Parse command-line options
+//——————————————————————————————————————————————————————————————————————
+
+options._.forEach(function (filename) {
+  if (!path.existsSync(filename)) {
+    die("%s: no such file or directory", options._[0])
+  } else if (fs.statSync(filename).isDirectory()) {
+    config.source_directories.push(filename)
+  } else {
+    config.source_files.push(filename)
+  }
+})
 
 toArray(options["source-directory"]).forEach(function (value) {
   config.source_directories.push(value)
 })
 
+//——————————————————————————————————————————————————————————————————————
+// Validate configuration
+//——————————————————————————————————————————————————————————————————————
+
+if (config.source_files.length === 1) {
+  config.source_file = config.source_files[0]
+} else if (config.source_files.length) {
+  die("error: multiple source files given")
+} else {
+  die("nothing to compile")
+}
+
+//——————————————————————————————————————————————————————————————————————
+// Generate Flex compiler command
+//——————————————————————————————————————————————————————————————————————
+
 var command = "mxmlc"
 var file_args = []
 var option_args = []
 
-file_args.push(config.source_file)
+file_args.push(path.resolve(config.source_file))
 
 option_args.push("-output=" + path.resolve(options["output"] || (
   config.source_file.replace(/\.(as|mxml)$/, ".swf")
@@ -45,11 +68,21 @@ config.source_directories.forEach(function (directory) {
 file_args.sort()
 option_args.sort()
 
+//——————————————————————————————————————————————————————————————————————
+// Perform compilation
+//——————————————————————————————————————————————————————————————————————
+
+var args = [command].concat(file_args, option_args)
+
 if (options["n"] || options["dry-run"]) {
-  console.log([command].concat(file_args, option_args).join(" "))
+  console.log(args.join(" "))
 } else {
-  // XXX
+  require("flex-compiler").__main__(args)
 }
+
+//——————————————————————————————————————————————————————————————————————
+// Utility functions
+//——————————————————————————————————————————————————————————————————————
 
 function die() {
   console.error("flexc: %s", format.apply(null, arguments))
