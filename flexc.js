@@ -7,14 +7,15 @@ var path = require("path")
 
 var options = require("optimist")
   .boolean("n").alias("n", "dry-run")
-  .string("o").alias("o", "output")
-  .string("X")
+  .string("o", "l", "L", "X")
   .argv
 
 var config = {
   directories: [],
   source_files: [],
   library_files: [],
+  library_path: [path.join(process.env.HOME, ".flex-lib")],
+  libraries: [],
   extra_arguments: [],
   target: undefined
 }
@@ -31,6 +32,32 @@ options._.forEach(function (filename) {
   } else {
     config.source_files.push(filename)
   }
+})
+
+toArray(options.L).forEach(function (directory) {
+  if (!path.existsSync(directory)) {
+    die("%s: no such file or directory", directory)
+  } else if (!fs.statSync(directory).isDirectory()) {
+    die("%s: not a directory", directory)
+  } else {
+    config.library_path.push(directory)
+  }
+})
+
+toArray(options.l).forEach(function (name) {
+  config.library_path.some(function (directory) {
+    var filename = path.join(directory, name)
+
+    if (is_directory(filename)) {
+      config.directories.push(filename)
+      return true
+    } else if (is_file(filename + ".swc")) {
+      config.library_files.push(filename + ".swc")
+      return true
+    } else {
+      return false
+    }
+  }) || die("%s: library not found", name)
 })
 
 toArray(options.X).forEach(function (argument) {
@@ -59,13 +86,17 @@ var option_args = []
 
 file_args.push(path.resolve(config.source_file))
 
-option_args.push("-output=" + path.resolve(options["output"] || (
+option_args.push("-output=" + path.resolve(options["o"] || (
   path.basename(config.source_file).replace(/\.(as|mxml)$/, ".swf")
 )))
 
 config.directories.forEach(function (directory) {
   option_args.push("-compiler.library-path+=" + path.resolve(directory))
   option_args.push("-compiler.source-path+=" + path.resolve(directory))
+})
+
+config.library_files.forEach(function (filename) {
+  option_args.push("-compiler.library-path+=" + path.resolve(filename))
 })
 
 option_args = option_args.concat(config.extra_arguments)
@@ -96,4 +127,12 @@ function die() {
 
 function toArray(value) {
   return value === undefined ? [] : Array.isArray(value) ? value : [value]
+}
+
+function is_file(filename) {
+  return path.existsSync(filename) && fs.statSync(filename).isFile()
+}
+
+function is_directory(filename) {
+  return path.existsSync(filename) && fs.statSync(filename).isDirectory()
 }

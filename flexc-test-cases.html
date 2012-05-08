@@ -26,10 +26,12 @@
       <dd class="stderr">flexc: nonexistent.as: no such file or directory</dd>
 
       <dt>flexc -n src/foo.as</dt>
-      <dd>mxmlc <b>$PWD</b>/src/foo.as -output=<b>$PWD</b>/foo.swf</dd>
+      <dd>mxmlc <b>$PWD</b>/src/foo.as
+        -output=<b>$PWD</b>/foo.swf</dd>
 
       <dt>flexc -n src/foo.as -o bar.swf</dt>
-      <dd>mxmlc <b>$PWD</b>/src/foo.as -output=<b>$PWD</b>/bar.swf</dd>
+      <dd>mxmlc <b>$PWD</b>/src/foo.as
+        -output=<b>$PWD</b>/bar.swf</dd>
 
       <dt>flexc -n src/foo.as src</dt>
       <dd>mxmlc <b>$PWD</b>/src/foo.as
@@ -37,8 +39,18 @@
         -compiler.source-path+=<b>$PWD</b>/src
         -output=<b>$PWD</b>/foo.swf</dd>
 
+      <dt>flexc -n src/foo.as -l baz</dt>
+      <dd class="stderr">flexc: baz: library not found</dd>
+
+      <dt>flexc -n src/foo.as -L lib -l baz</dt>
+      <dd>mxmlc <b>$PWD</b>/src/foo.as
+        -compiler.library-path+=<b>$PWD</b>/lib/baz.swc
+        -output=<b>$PWD</b>/foo.swf</dd>
+
       <dt>flexc -n src/foo.as -X-foo=bar</dt>
-      <dd>mxmlc <b>$PWD</b>/src/foo.as -foo=bar -output=<b>$PWD</b>/foo.swf</dd>
+      <dd>mxmlc <b>$PWD</b>/src/foo.as
+        -foo=bar
+        -output=<b>$PWD</b>/foo.swf</dd>
     </dl>
   </body>
 </html>
