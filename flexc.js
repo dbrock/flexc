@@ -5,8 +5,8 @@ var inspect = require("util").inspect
 var path = require("path")
 
 var options = require("optimist")
-  .boolean("n", "dry-run")
-  .string("o", "output")
+  .boolean("n").alias("n", "dry-run")
+  .string("o").alias("o", "output")
   .argv
 
 var config = {}
@@ -26,9 +26,9 @@ var option_args = []
 if (path.existsSync(config.source_file)) {
   command = "mxmlc"
   file_args.push(config.source_file)
-  option_args.push("-output=" + (
-    path.resolve(config.source_file).replace(/\.(as|mxml)$/, ".swf")
-  ))
+  option_args.push("-output=" + path.resolve(options["output"] || (
+    config.source_file.replace(/\.(as|mxml)$/, ".swf")
+  )))
 } else {
   die("%s: no such file or directory", config.source_file)
 }
