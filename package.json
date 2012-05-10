@@ -1,12 +1,13 @@
 {
   "author": "Daniel Brockman <@dbrock>",
   "name": "flexc",
-  "description": "GNU-style porcelain for the Adobe Flex compiler",
+  "description": "Hacker-friendly porcelain for the Adobe Flex compiler",
   "version": "0.0.0",
   "main": "flexc.js",
   "bin": "flexc.js",
   "dependencies": {
     "flex-compiler": "~0.0.0",
+    "flex-simplify-errors": "~0.0.0",
     "optimist": "~0.3.4",
     "colors": "~0.6.0-1",
     "libxmljs": "~0.5.4",

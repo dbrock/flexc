@@ -4,10 +4,13 @@ var format = require("util").format
 var fs = require("fs")
 var inspect = require("util").inspect
 var path = require("path")
+var simplify = require("flex-simplify-errors")
+var tty = require("tty")
 
 var options = require("optimist")
   .string("o", "l", "L", "X")
   .boolean("n").alias("n", "dry-run")
+  .boolean("raw")
   .boolean("flex").default("flex", true)
   .boolean("static-rsls")
   .boolean("halo")
@@ -159,10 +162,10 @@ if (options["write-config"]) {
   })
 }
 
-option_args = option_args.concat(config.extra_arguments)
-
 file_args.sort()
 option_args.sort()
+
+option_args = option_args.concat(config.extra_arguments)
 
 //——————————————————————————————————————————————————————————————————————
 // Perform compilation
@@ -177,11 +180,17 @@ if (!options["dry-run"]) {
     ), flex_config_xml)
   }
 
-  require("flex-compiler").__main__(args)
+  require("flex-compiler").run(args, function (ok, output) {
+    process.stdout.write(options.raw ? output : simplify(output, {
+      colors: tty.isatty(process.stdout.fd)
+    }))
+
+    process.exit(ok ? 0 : 1)
+  })
 } else if (flex_config_xml) {
   console.log(flex_config_xml)
 } else {
-  console.log(args.join(" "))
+  console.log(args.join(" \\\n  "))
 }
 
 //——————————————————————————————————————————————————————————————————————
