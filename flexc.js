@@ -11,6 +11,7 @@ var options = require("optimist")
   .string("o", "l", "L", "X")
   .boolean("n").alias("n", "dry-run")
   .boolean("raw")
+  .boolean("production")
   .boolean("flex").default("flex", true)
   .boolean("static-rsls")
   .boolean("halo")
@@ -70,6 +71,10 @@ toArray(options["l"]).forEach(function (name) {
 toArray(options["X"]).forEach(function (argument) {
   config.extra_arguments.push(argument)
 })
+
+if (!options["production"]) {
+  config.extra_arguments.push("-debug")
+}
 
 if (!options["flex"]) {
   config.extra_arguments.push("-runtime-shared-library-path=")
