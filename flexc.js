@@ -37,8 +37,12 @@ options._.forEach(function (filename) {
     die("%s: no such file or directory", filename)
   } else if (fs.statSync(filename).isDirectory()) {
     config.directories.push(filename)
-  } else {
+  } else if (~[".swc"].indexOf(path.extname(filename))) {
+    config.library_files.push(filename)
+  } else if (~[".as", ".mxml"].indexOf(path.extname(filename))) {
     config.source_files.push(filename)
+  } else {
+    die("%s: unrecognized source or library file")
   }
 })
 
