@@ -32,10 +32,18 @@ var config = {
 // Parse command-line options
 //——————————————————————————————————————————————————————————————————————
 
-options._.forEach(function (filename) {
-  if (!path.existsSync(filename)) {
+function verify_file_or_directory(filename) {
+  if (~filename.indexOf(" ")) {
+    die("%s: fcsh cannot handle whitespace in filenames", filename)
+  } else if (!path.existsSync(filename)) {
     die("%s: no such file or directory", filename)
-  } else if (fs.statSync(filename).isDirectory()) {
+  }
+}
+
+options._.forEach(function (filename) {
+  verify_file_or_directory(filename)
+
+  if (fs.statSync(filename).isDirectory()) {
     config.directories.push(filename)
   } else if (~[".swc"].indexOf(path.extname(filename))) {
     config.library_files.push(filename)
@@ -46,13 +54,13 @@ options._.forEach(function (filename) {
   }
 })
 
-toArray(options["L"]).forEach(function (directory) {
-  if (!path.existsSync(directory)) {
-    die("%s: no such file or directory", directory)
-  } else if (!fs.statSync(directory).isDirectory()) {
-    die("%s: not a directory", directory)
+toArray(options["L"]).forEach(function (filename) {
+  verify_file_or_directory(filename)
+
+  if (!fs.statSync(filename).isDirectory()) {
+    die("%s: not a directory", filename)
   } else {
-    config.library_path.push(directory)
+    config.library_path.push(filename)
   }
 })
 
