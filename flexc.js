@@ -4,7 +4,6 @@ var format = require("util").format
 var fs = require("fs")
 var inspect = require("util").inspect
 var path = require("path")
-var simplify = require("flex-simplify-errors")
 var tty = require("tty")
 
 var options = require("optimist")
@@ -198,9 +197,11 @@ if (!options["dry-run"]) {
   }
 
   require("flex-compiler").run(args, function (ok, output) {
-    process.stdout.write(options.raw ? output : simplify(output, {
-      colors: tty.isatty(process.stdout.fd)
-    }))
+    process.stdout.write(
+      options.raw ? output : require("flex-simplify-errors")(output, {
+        colors: tty.isatty(process.stdout.fd)
+      })
+    )
 
     process.exit(ok ? 0 : 1)
   })
