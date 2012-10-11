@@ -35,7 +35,7 @@ var config = {
 function verify_file_or_directory(filename) {
   if (~filename.indexOf(" ")) {
     die("%s: fcsh cannot handle whitespace in filenames", filename)
-  } else if (!path.existsSync(filename)) {
+  } else if (!fs.existsSync(filename)) {
     die("%s: no such file or directory", filename)
   }
 }
@@ -224,11 +224,11 @@ function toArray(value) {
 }
 
 function is_file(filename) {
-  return path.existsSync(filename) && fs.statSync(filename).isFile()
+  return fs.existsSync(filename) && fs.statSync(filename).isFile()
 }
 
 function is_directory(filename) {
-  return path.existsSync(filename) && fs.statSync(filename).isDirectory()
+  return fs.existsSync(filename) && fs.statSync(filename).isDirectory()
 }
 
 function build_xml(xml, callback) {
